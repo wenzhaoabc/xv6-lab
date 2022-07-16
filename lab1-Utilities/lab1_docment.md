@@ -236,3 +236,29 @@
 
 采用类似于`ls`的实现方式，设置了递归函数`int find(char *path,const chat filename)`，函数返回在path路径下查找到的文件数量，根据`stat`的`type`属性，对文件和目录分别处理，文件直接比对是否为查找目标，目录则生成再一层的路径，打开进入，递归`find()`函数，同样设置了`fmtname`函数，根据路径名获取末尾的文件名。具体实现见[`find.c`](./find.c)
 
+# xargs
+
+> Write a simple version of the UNIX xargs program: read lines from the standard input and run a command for each line, supplying the line as arguments to the command. Your solution should be in the file `user/xargs.c`.
+
+## 一些提示
+
+>- 使用`fork`和`exec`执行输入的每行的命令，使用`wait`在父进程中等待子进程完成命令
+>- 逐行读入输入的命令，逐个读取字符直到换行符'\n'
+>- `kernal/param.h`中声明了最多允许的参数个数
+
+`xargs`是从stdin获取内容并将其作为后续命令地参数执行，弥补了管道无法将前面的标准输出作为后面地命令参数的缺陷，示例如下：
+
+    zhao@WEN:~$ echo hello > txt
+    zhao@WEN:~$ echo txt | cat
+    txt
+    zhao@WEN:~$ echo txt | xargs cat
+    hello
+    zhao@WEN:~$ 
+
+在其具体实现中，采用两层循环，内层循环分割从管道读取的数据，通过遍历`buf`遇到`'\n'`则`fork()`子进程，传入规范好的参数调用`exec()`执行，外层循环则不断从管道中读取数据。详见[`xargs.c`](./xargs.c)
+
+# 总结
+
+实验用时较长，也参阅了网上大量资料，深感自身能力之不足，但庆幸于其中了解颇多计算机底层的相关概念，收获良多。
+
+![image.png](https://s2.loli.net/2022/07/16/jfXmkKROJbdWCqp.png)
